@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>配置01</title></head>
+<body><div>[TOC]</div>
+<h2>从 php.ini 说起</h2>
+<p>安装php后，会生成配置文件 <code>php.ini</code> 文件。
+php脚本程序，会通过配置文件，进行程序配置管理。</p>
+<h2>error_reporting 报告</h2>
+<h3>1、作用：</h3>
+<p>error_reporting 会报告出当前程序脚本的错误级别，并将对应的错误信息返回。</p>
+<h3>2、有哪些类型：</h3>
+<p>1     E_ERROR                致命的运行时错误。 错误无法恢复过来。脚本的执行被暂停
+2     E_WARNING              非致命的运行时错误。 脚本的执行不会停止
+4     E_PARSE                编译时解析错误。解析错误应该只由分析器生成
+8     E_NOTICE               运行时间的通知。
+16    E_CORE_ERROR           在PHP启动时的致命错误。这就好比一个在PHP核心的E_ERROR
+32    E_CORE_WARNING         在PHP启动时的非致命的错误。这就好比一个在PHP核心E_WARNING警告
+64    E_COMPILE_ERROR        致命的编译时错误。 这就像由Zend脚本引擎生成了一个E_ERROR
+128   E_COMPILE_WARNING      非致命的编译时错误，由Zend脚本引擎生成了一个E_WARNING警告
+256   E_USER_ERROR           致命的用户生成的错误。
+512   E_USER_WARNING         非致命的用户生成的警告。 
+1024  E_USER_NOTICE          用户生成的通知。
+2048  E_STRICT               运行时间的通知。
+4096  E_RECOVERABLE_ERROR    捕捉致命的错误。
+8191  E_ALL来                所有的错误和警告。</p>
+<h3>3、怎么配置？</h3>
+<p>第一种：在php.ini配置文件中，<code>error_reporting = E_ALL &amp; ~ E_NOTICE</code>，配置完成后重启 php-fpm 即可生效，永久性。
+第二种：在php程序中，使用函数  <code>error_reporting(E_WARNING | E_NOTICE);</code> 不需要重启 php-fpm，当前请求生命周期内生效。
+第三种：在php程序中，使用 <code>ini_set(&quot;error_reporting&quot;, &quot;E_ALL &amp; ~ E_NOTICE&quot;);</code> 也可以作为当前请求生命周期内生效。
+第四种：在php程序中，使用 <code>error_reporting(0)</code>，禁止报告错误。
+两种方式使用的符号有所不同，注意区分。</p>
+<h3>4、技巧</h3>
+<p>1、在全部报错类型中，针对某种报错不进行报错，又不想全写呢？
+比如：error_reporting(E_ALL)，这时，你需要屏蔽其中的 E_NOTICE 错误。
+答：error_reporting(E_ALL ^ E_NOTICE); ，显示所有错误，除了提醒类错误。注意函数式是在程序中使用。
+答2：php.ini中，error_reporting = E_ALL &amp; ~ E_NOTICE，显示所有错误，除了提醒类错误
+2、使用 |、^ 的区别？
+比如1：error_reporting(E_NOTICE | E_WARNING); //这两种错误都报告，其余错误类型不报告。
+比如2：error_reporting(E_ALL ^ E_WARNING); //显示所有错误，除了提醒类错误，^ 配合 E_ALL使用</p>
+<h3>5、与安全的关系</h3>
+<p>一般程序报错，会返回系统相关信息，比如项目所在服务器的目录路径，以及使用的变量名等信息，这些信息都可能成为攻击者的预攻击信息。
+将需要记录的错误报告等级，与其他配置项组合，就能看到错误信息又能不返回到服务器以外的网络中。
+在 <code> php.ini </code> 中配置
+第一步：打开需要收集的错误信息 errpr_reporting = E_ALL &amp; ~ E_NOTICE
+第二步：关闭返回错误信息配置项，display_errors = Off  ; 生产环境(正式环境)时，一定设置为Off
+第三步：将错误信息存储到指定文件中， error_log = /var/log/php/error.log ; 
+第四步：与日志分析软件结合，可以实时进行错误报告收集，同时进行报警到相关负责人手上，及时处理。</p>
+</body>
+</html>
